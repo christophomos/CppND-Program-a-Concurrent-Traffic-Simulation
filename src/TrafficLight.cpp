@@ -43,7 +43,7 @@ TrafficLight::TrafficLight()
 
     std::random_device rd;
     _gen = std::mt19937 (rd());
-    _dist = std::uniform_real_distribution(minLightChangeSeconds, maxLightChangeSeconds);
+    _dist = std::uniform_real_distribution<long double>(minLightChangeSeconds, maxLightChangeSeconds);
     _last_phase_change_time = std::chrono::high_resolution_clock::now();
     randomizeSecondsToWait();
 }

@@ -14,5 +14,5 @@ add_definitions(${OpenCV_DEFINITIONS})
 file(GLOB project_SRCS src/*.cpp) #src/*.h
 
 # Add project executable
-add_executable(traffic_simulation ${project_SRCS} "../../Library/Application Support/JetBrains/CLion2021.3/scratches/scratch.h")
+add_executable(traffic_simulation ${project_SRCS})
 target_link_libraries(traffic_simulation ${OpenCV_LIBRARIES})
