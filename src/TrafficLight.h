@@ -5,6 +5,7 @@
 #include <deque>
 #include <condition_variable>
 #include <chrono>
+#include <random>
 
 #include "TrafficObject.h"
 

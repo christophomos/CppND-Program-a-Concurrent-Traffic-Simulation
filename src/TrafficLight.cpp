@@ -16,7 +16,7 @@ T && MessageQueue<T>::receive()
     // to wait for and receive new messages and pull them from the queue using move semantics. 
     // The received object should then be returned by the "receive" function.
     std::unique_lock<std::mutex> uniqueLock(_mutex);
-    _cond.wait(uniqueLock, [this] { return this->_queue.empty(); });
+    _cond.wait(uniqueLock, [this] { return !this->_queue.empty(); });
     T message = std::move(_queue.back());
     _queue.pop_back();
 
@@ -92,17 +92,17 @@ void TrafficLight::cycleThroughPhases()
     while (true)
     {
         auto current_time = std::chrono::high_resolution_clock::now();
-        auto diff = current_time - _last_phase_change_time;
+        auto diff = std::chrono::duration_cast<std::chrono::seconds>(current_time - _last_phase_change_time);
         if (diff < _seconds_to_wait)
         {
             continue;
         }
 
-        // Not sure if this is the correct approach
         TrafficLightPhase phase = std::move(_currentPhase);
         _currentPhase =
                 _currentPhase == TrafficLightPhase::green ? TrafficLightPhase::red : TrafficLightPhase::green;
-        _messageQueue.send(std::move(phase));
+        auto return_value = _currentPhase;
+        _messageQueue.send(std::move(return_value));
 
         _last_phase_change_time = std::chrono::high_resolution_clock().now();
         randomizeSecondsToWait();
