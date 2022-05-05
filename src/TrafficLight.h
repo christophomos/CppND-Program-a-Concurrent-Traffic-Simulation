@@ -4,12 +4,19 @@
 #include <mutex>
 #include <deque>
 #include <condition_variable>
+#include <chrono>
+
 #include "TrafficObject.h"
 
 // forward declarations to avoid include cycle
 class Vehicle;
 
+enum class TrafficLightPhase
+{
+    red, green
+};
 
+// COMPLETE
 // FP.3 Define a class „MessageQueue“ which has the public methods send and receive. 
 // Send should take an rvalue reference of type TrafficLightPhase whereas receive should return this type. 
 // Also, the class should define an std::dequeue called _queue, which stores objects of type TrafficLightPhase. 
@@ -19,14 +26,12 @@ template <class T>
 class MessageQueue
 {
 public:
-
+    void send(const T && traffic_light_phase);
+    T && receive();
 private:
-    
-};
-
-enum class TrafficLightPhase
-{
-    red, green
+    std::condition_variable _cond;
+    std::mutex _mutex;
+    std::deque<T> _queue;
 };
 
 // COMPLETE
@@ -39,7 +44,8 @@ enum class TrafficLightPhase
 class TrafficLight : public TrafficObject
 {
 public:
-    // constructor / desctructor
+    // constructor / destructor
+    TrafficLight();
 
     // getters / setters
     TrafficLightPhase getCurrentPhase();
@@ -47,17 +53,30 @@ public:
     // typical behaviour methods
     void waitForGreen();
     void simulate();
+
+    static constexpr long double minLightChangeSeconds = 4.0;
+    static constexpr long double maxLightChangeSeconds = 6.0;
 private:
+    // How long ago did the traffic light last change phase?
+    std::chrono::time_point<std::chrono::high_resolution_clock> _last_phase_change_time;
+    std::chrono::duration<long double> _seconds_to_wait;
     // typical behaviour methods
     void cycleThroughPhases();
 
+    // COMPLETE
     // FP.4b : create a private member of type MessageQueue for messages of type TrafficLightPhase 
     // and use it within the infinite loop to push each new TrafficLightPhase into it by calling 
     // send in conjunction with move semantics.
+    MessageQueue<TrafficLightPhase> _messageQueue;
 
-    std::condition_variable _condition;
-    std::mutex _mutex;
     TrafficLightPhase _currentPhase;
+    static const std::chrono::duration<long double> LOOP_SLEEP;
+
+    std::mt19937 _gen;
+    std::uniform_real_distribution<long double> _dist;
+
+
+    void randomizeSecondsToWait();
 };
 
 #endif
