@@ -99,7 +99,6 @@ void TrafficLight::cycleThroughPhases()
             continue;
         }
 
-        TrafficLightPhase phase = std::move(_currentPhase);
         _currentPhase =
                 _currentPhase == TrafficLightPhase::green ? TrafficLightPhase::red : TrafficLightPhase::green;
         auto return_value = _currentPhase;
