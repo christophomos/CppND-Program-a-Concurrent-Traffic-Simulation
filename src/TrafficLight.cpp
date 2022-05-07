@@ -19,6 +19,7 @@ T && MessageQueue<T>::receive()
     _cond.wait(uniqueLock, [this] { return !this->_queue.empty(); });
     T message = std::move(_queue.back());
     _queue.pop_back();
+    _queue.clear(); // Make sure cars aren't receiving old messages
 
     return std::move(message);
 }
@@ -30,7 +31,7 @@ void MessageQueue<T>::send(const T && msg)
     // FP.4a : The method send should use the mechanisms std::lock_guard<std::mutex> 
     // as well as _condition.notify_one() to add a new message to the queue and afterwards send a notification.
     std::lock_guard<std::mutex> uLock(_mutex);
-    _queue.push_back(std::move(msg));
+    _queue.emplace_back(std::move(msg));
     _cond.notify_one();
 }
 
